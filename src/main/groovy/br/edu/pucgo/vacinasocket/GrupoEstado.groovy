@@ -4,7 +4,6 @@ class GrupoEstado extends SocketServer {
 
 	private static List<Integer> VERIFICADORES_VALIDOS = 0..9
 
-	final String id = UUID.randomUUID().toString()
 	private final int verificadorCPF
 	private final List<Estado> estados = []
 
@@ -15,10 +14,13 @@ class GrupoEstado extends SocketServer {
 
 	@Override
 	void consumirMensagem(String mensagem) {
-		if (cpfPertenceAEsteGrupo(mensagem)) {
+		Integer verificador = mensagem?.find(/\d(?=\-\d\d)/)?.toInteger()
+		if (verificador == this.verificadorCPF) {
 			writer.println("CPF corresponde ao grupo atual com os seguintes estados: ${estados}.")
 		} else {
-			writer.println("unrecognised greeting")
+			SocketClient client = new SocketClient()
+			client.conectar(verificador)
+			println(client.enviarMensagem(mensagem))
 		}
 	}
 
@@ -33,11 +35,6 @@ class GrupoEstado extends SocketServer {
 
 	void adicionarCidade() {
 
-	}
-
-	boolean cpfPertenceAEsteGrupo(String cpf) {
-		Integer verificador = cpf?.find(/\d(?=\-\d\d)/)?.toInteger()
-		return verificador == verificadorCPF
 	}
 
 	static void main(String[] args) {
