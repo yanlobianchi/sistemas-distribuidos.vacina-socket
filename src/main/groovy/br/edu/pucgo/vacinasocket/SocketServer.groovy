@@ -2,28 +2,40 @@ package br.edu.pucgo.vacinasocket
 
 abstract class SocketServer {
 
+	protected final input = System.in.newReader()
 	protected ServerSocket serverSocket
 	protected Socket clientSocket
 	protected PrintWriter writer
 	protected BufferedReader reader
 
-	void iniciar(int porta) {
-		serverSocket = new ServerSocket(porta)
+	void iniciar() {
+		serverSocket = new ServerSocket(0)
+		validaPorta()
 		clientSocket = serverSocket.accept()
 		writer = new PrintWriter(clientSocket.getOutputStream(), true)
 		reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))
-		String linha
+		String linhaSocket
 
-		while ((linha = reader.readLine()) != null) {
+		while ((linhaSocket = reader.readLine()) != null) {
+			if (linhaSocket == '-1') {
+				parar()
+				break
+			}
+
 			try {
-				consumirMensagem(linha)
+				consumirMensagem(linhaSocket)
 			} catch(Exception e) {
-				println("Falha ao consumir mensagem no socket: ${this.toString()}\n${e.message}")
+				writer.println("Falha ao consumir mensagem no socket: ${this.toString()}. ${e.message}")
 			}
 		}
 	}
 
+	void validaPorta() {
+	}
+
 	void parar() {
+		println('Parando servidor na porta: ' + serverSocket.localPort)
+		clientSocket?.shutdownInput()
 		reader?.close()
 		writer?.close()
 		clientSocket?.close()

@@ -12,7 +12,7 @@ enum GruposEstado {
 	SP(Estado.SP),
 	PR_SC(Estado.PR, Estado.SC)
 
-	private final List<Estado> estados = []
+	final List<Estado> estados = []
 
 	private GruposEstado(Estado... estados) {
 		this.estados.addAll(estados)
@@ -20,6 +20,10 @@ enum GruposEstado {
 
 	static GruposEstado getGrupoByEstado(Estado estado) {
 		return values().find { it.estados.contains(estado) }
+	}
+
+	static GruposEstado getGrupoByVerificador(int verificador) {
+		return values()[verificador]
 	}
 
 }

@@ -3,16 +3,17 @@ package br.edu.pucgo.vacinasocket
 class Cidade extends SocketClient {
 	String nome
 	Estado estado
-	private int porta
 
 	Cidade(String nome, Estado estado) {
 		this.nome = nome
 		this.estado = estado
-		porta = GruposEstado.getGrupoByEstado(estado).ordinal()
 	}
 
 	void conectar() {
+		final int verificador = GruposEstado.getGrupoByEstado(estado).ordinal()
+		final int porta = GrupoEstadoConnectService.instance.findPortaByVerificador(verificador)
 		super.conectar(porta)
+		println("Cidade '${nome}' conectada no grupo de estado='${estado}', verificador='${verificador}' e porta='${porta}'")
 	}
 
 	static void main(String[] args) {
@@ -29,13 +30,21 @@ class Cidade extends SocketClient {
 		cidade.conectar()
 
 		while (true) {
+			if (cidade.desconectado()) {
+				throw new IllegalStateException('Cidade desconectado do servidor do grupo de estados, o mesmo pode ter caido')
+			}
+
+			println('Insira seu CPF para vacinar: ')
+
 			String linha = input.readLine()
 			if (linha == 'sair') {
 				cidade.desconectar()
 				break
 			}
-			println('Insira seu CPF para vacinar: ')
-			println(cidade.enviarMensagem(linha))
+
+			if (linha) {
+				println(cidade.enviarMensagem(linha))
+			}
 		}
 	}
 }

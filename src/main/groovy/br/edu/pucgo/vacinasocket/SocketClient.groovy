@@ -11,6 +11,10 @@ class SocketClient {
 		reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))
 	}
 
+	boolean desconectado() {
+		return !clientSocket?.isConnected()
+	}
+
 	String enviarMensagem(String msg) {
 		writer.println(msg)
 		String resp = reader.readLine()
